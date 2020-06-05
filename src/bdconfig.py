@@ -13,7 +13,8 @@ def carrega_csv(arquivo):
                     delimiter = ";",
                     usecols=list(range(1,10)),
                     dtype={'Hora':'str', 'DirecaoVento':'str'},
-                    parse_dates=[['Data', 'Hora']]
+                    parse_dates=[['Data', 'Hora']],
+                    dayfirst=True
                    )
         df.rename(columns={'Data_Hora':'Horario'}, inplace=True)
         df.set_index('Horario', inplace=True)
@@ -75,11 +76,15 @@ def bd_clima():
                 df.to_sql(nome[0], con)
         con.close()
 
-def carrega_tabela(nome, con, clima=False):
+def carrega_tabela(nome, bd, clima=False):
+
+    con = cria_conexao(bd)
     query = "SELECT * FROM {}".format(nome)
     if clima:
         df = pd.read_sql_query(query, con=con, parse_dates='Horario', index_col='Horario')
     else:
         df = pd.read_sql_query(query, con=con)
-  
+        df.drop(columns='index', inplace=True)
+    
+    con.close()
     return df
