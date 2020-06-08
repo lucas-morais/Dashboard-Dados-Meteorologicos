@@ -1,0 +1,42 @@
+*{
+    margin:0;
+	padding: 0;
+    box-sizing: border-box;
+    
+}
+
+body{
+    background-color: #1a1a1a;
+    color:whitesmoke;
+}
+
+header{
+    
+   margin-top: 10px;
+   margin-bottom: 10px;
+   margin-left: 20px; 
+}
+
+/*body{
+	height: 100vh;
+    padding: 2px 2px 2px 2px;
+}*/
+
+.principal{
+    display:flex;
+    justify-content: space-between;
+    height:100vh;
+    background-color: rgb(190, 190, 190);
+    padding-top: 1.5%;
+
+}
+
+.grafico{
+    width:68.5%;
+    background-color: lightslategrey;
+}
+
+.resumo{
+    width:30%;
+    background-color: crimson;
+}
