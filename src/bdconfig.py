@@ -1,5 +1,7 @@
+import os
 import pandas as pd
 import sqlite3
+
 
 def carrega_csv(arquivo):
     

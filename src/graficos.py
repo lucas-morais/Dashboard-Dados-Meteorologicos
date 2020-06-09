@@ -44,10 +44,10 @@ def mapa():
     return fig
 
 
-def graficos():
+def graficos(nome, inicio, fim):
 
     bd = "../dados/clima.db"
-    df = carrega_tabela(nome = "JoaoPessoa", bd = bd, clima=True)
+    df = carrega_tabela(nome = nome, bd = bd, clima=True)
 
     fig = make_subplots(rows=3, cols=2, 
             subplot_titles=["Temperatura de Bulbo Seco",
@@ -60,48 +60,48 @@ def graficos():
 
     fig.add_trace(
         go.Scatter(
-            x=df['2008-01'].index, 
-            y=df['TempBulboSeco']['2008-01']
+            x=df[inicio:fim].index, 
+            y=df['TempBulboSeco'][inicio:fim]
         ),
         row = 1, col=1
     )
 
     fig.add_trace(
         go.Scatter(
-            x=df['2008-01'].index, 
-            y=df['TempBulboUmido']['2008-01']
+            x=df[inicio:fim].index, 
+            y=df['TempBulboUmido'][inicio:fim]
         ),
         row = 1, col=2
     )
 
     fig.add_trace(
         go.Scatter(
-            x=df['2008-01'].index, 
-            y=df['UmidadeRelativa']['2008-01']
+            x=df[inicio:fim].index, 
+            y=df['UmidadeRelativa'][inicio:fim]
         ),
         row = 2, col=1
     )
 
     fig.add_trace(
         go.Scatter(
-            x=df['2008-01'].index, 
-            y=df['PressaoAtmEstacao']['2008-01']
+            x=df[inicio:fim].index, 
+            y=df['PressaoAtmEstacao'][inicio:fim]
         ),
         row = 2, col=2
     )
 
     fig.add_trace(
         go.Scatter(
-            x=df['2008-01'].index, 
-            y=df['VelocidadeVento']['2008-01']
+            x=df[inicio:fim].index, 
+            y=df['VelocidadeVento'][inicio:fim]
         ),
         row = 3, col=1
     )
 
     fig.add_trace(
         go.Scatter(
-            x=df['2008-01'].index, 
-            y=df['Nebulosidade']['2008-01']
+            x=df[inicio:fim].index, 
+            y=df['Nebulosidade'][inicio:fim]
         ),
         row = 3, col=2
     )

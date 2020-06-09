@@ -5,9 +5,17 @@ from dash.dependencies import Input, Output
 import dash_table
 from bdconfig import carrega_tabela
 from graficos import mapa, graficos
+from datetime import datetime as dt
 
 
 bd = "../dados/clima.db"
+info = carrega_tabela(nome = "Info", bd = bd, clima=False)
+nome = info['Cidade']
+label = [it.replace('-',' ') for it in nome]
+value = [it.replace('-','') for it in nome]
+listaCidades = []
+for it1,it2 in zip(label, value):
+    listaCidades.append(dict(label=it1, value=it2))
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -35,19 +43,61 @@ app.layout = html.Div(children=[
                 ]),
                 dcc.Tab(label = 'Gráficos',children = [
                     html.Div(children=[
-                        dcc.Graph(id='Graficos', figure=graficos())
+                        dcc.Graph(id='Graficos')
                     ])
                 ]),
             ],
             colors = dict(border="blue",primary="yellow",background="#1a1a1a")),
         ]),
-        html.Div(className="resumo")
+        html.Div(className="resumo", children = [
+            html.Label("Cidade:"),
+            dcc.Dropdown(
+                id = 'Cidades-Dropdown',
+                options = listaCidades,
+                value = 'JoaoPessoa',
+                style = dict(backgroundColor='#1a1a1a', color='red')
+            ),
+            html.Label("Data:"),
+            dcc.DatePickerRange(
+                id = 'Datas',
+                min_date_allowed=dt(2008, 1, 1),
+                max_date_allowed=dt(2018,12,31),
+                display_format='DD/MM/YYYY',
+                start_date_placeholder_text='Data início',
+                end_date_placeholder_text='Data fim',
+                
+            )
+        ])
     ])
-
-
 ])
 
+@app.callback(
+    Output(component_id="Graficos", component_property="figure"),
+    [Input(component_id="Cidades-Dropdown", component_property="value"),
+    Input(component_id="Datas", component_property="start_date"),
+    Input(component_id="Datas", component_property="end_date")]
+)
 
+def update_dados(value, start_date, end_date):
+
+    if value is not None:
+        cidade = value
+    else: 
+        cidade = JoaoPessoa
+    
+    if start_date is not None:
+        inicio = start_date
+    else: 
+        inicio = '2008-01'
+    
+    if end_date is not None:
+        fim = end_date 
+    else:
+        fim = '2008-12'
+
+    figura = graficos(cidade,inicio=inicio,fim=fim)
+
+    return figura
 
 if __name__ == "__main__":
     app.run_server(debug=True)
