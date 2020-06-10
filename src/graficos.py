@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from bdconfig import carrega_tabela
+import pandas as pd
 
 def mapa():
     
@@ -116,3 +117,22 @@ def graficos(nome, inicio, fim):
         
     )
     return fig
+
+
+def tabela_vento(nome, inicio, fim):
+
+    vento = carrega_tabela('DirecaoVento', bd='../dados/clima.db', clima=False)
+    df = carrega_tabela('JoaoPessoa', bd='../dados/clima.db', clima=True)
+    df = df[inicio:fim]
+    t = df['DirecaoVento'].value_counts().sort_values(ascending = False)[:3]
+    count = t.values
+    keys = t.index.astype('int64').values
+    nome = [vento[vento['Codigo']==k]['Descricao'].values[0] for k in keys]
+    tabela = []
+    for k, c in zip(keys, count):
+        direcao = vento[vento['Codigo']==k]['Descricao'].values[0]
+        tabela.append([direcao, c]) 
+
+    df_tabela = pd.DataFrame(tabela, columns=['Direção', 'Cont'])
+
+    return df_tabela

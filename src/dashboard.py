@@ -4,7 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_table
 from bdconfig import carrega_tabela
-from graficos import mapa, graficos
+from graficos import mapa, graficos, tabela_vento
 from datetime import datetime as dt
 
 
@@ -52,37 +52,52 @@ app.layout = html.Div(children=[
             colors = dict(border="blue",primary="yellow",background="#1a1a1a")),
         ]),
         html.Div(className="resumo", children = [
-            html.Label("Cidade:"),
-            dcc.Dropdown(
-                id = 'Cidades-Dropdown',
-                options = listaCidades,
-                value = 'JoaoPessoa',
-                style = dict(backgroundColor='#1a1a1a', color='black')
-            ),
-            html.Label("Data:"),
-            dcc.DatePickerRange(
-                id = 'Datas',
-                min_date_allowed=dt(2008, 1, 1),
-                max_date_allowed=dt(2018,12,31),
-                display_format='DD/MM/YYYY',
-                start_date_placeholder_text='Data início',
-                end_date_placeholder_text='Data fim',
+            html.Label(children =[ 
+                "Cidade:",
+                dcc.Dropdown(
+                    id = 'Cidades-Dropdown',
+                    options = listaCidades,
+                    value = 'JoaoPessoa',
+                )
+            ]),
+            html.Label(children=[
+                "Data:",
+                html.Br(),
+                dcc.DatePickerRange(
+                    id = 'Datas',
+                    min_date_allowed=dt(2008, 1, 1),
+                    max_date_allowed=dt(2018,12,31),
+                    display_format='DD/MM/YYYY',
+                    start_date_placeholder_text='Data início',
+                    end_date_placeholder_text='Data fim',
+                )        
+            ]), 
+            html.Label(children = [
+                "Resumo",
+                dash_table.DataTable(
+                    id = 'Tabela',
+                    columns=[{"name": i, "id": i} for i in ['Medição','Média', 'Desvio Padrão','Mediana']],
+                    style_cell = dict(backgroundColor='#1a1a1a', color='whitesmoke')
+                ),
                 
-            ), 
-            html.Label("Resumo"),
-            dash_table.DataTable(
-                id = 'Tabela',
-                columns=[{"name": i, "id": i} for i in ['Medição','Média', 'Desvio Padrão','Mediana']],
-                style_cell = dict(backgroundColor='#1a1a1a', color='whitesmoke')
-            )
-
+            ]), 
+            html.Label(children = [
+                "Direção do Vento",
+                dash_table.DataTable(
+                    id = 'TabelaVento',
+                    columns=[{"name": i, "id": i} for i in ['Direção','Cont' ]],
+                    style_cell = dict(backgroundColor='#1a1a1a', color='whitesmoke')
+                ),
+                
+            ]),   
         ])
     ])
 ])
 
 @app.callback(
     [Output(component_id="Graficos", component_property="figure"),
-    Output(component_id="Tabela", component_property="data")],
+    Output(component_id="Tabela", component_property="data"),
+    Output(component_id="TabelaVento", component_property="data")],
     [Input(component_id="Cidades-Dropdown", component_property="value"),
     Input(component_id="Datas", component_property="start_date"),
     Input(component_id="Datas", component_property="end_date")]
@@ -112,7 +127,10 @@ def update_dados(value, start_date, end_date):
     tabela.reset_index(inplace=True)
     tabela.columns = ['Medição','Média', 'Desvio Padrão','Mediana']
     tabela = tabela.round(2)
-    return figura, tabela.to_dict('records')
+
+    tabelaVento = tabela_vento(nome, inicio, fim)
+    
+    return figura, tabela.to_dict('records'), tabelaVento.to_dict('records')
 
 if __name__ == "__main__":
     app.run_server(debug=True)
