@@ -17,6 +17,8 @@ listaCidades = []
 for it1,it2 in zip(label, value):
     listaCidades.append(dict(label=it1, value=it2))
 
+colunas = ['Média', 'Mediana', 'Desvio Padrão']
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -55,7 +57,7 @@ app.layout = html.Div(children=[
                 id = 'Cidades-Dropdown',
                 options = listaCidades,
                 value = 'JoaoPessoa',
-                style = dict(backgroundColor='#1a1a1a', color='red')
+                style = dict(backgroundColor='#1a1a1a', color='black')
             ),
             html.Label("Data:"),
             dcc.DatePickerRange(
@@ -66,13 +68,21 @@ app.layout = html.Div(children=[
                 start_date_placeholder_text='Data início',
                 end_date_placeholder_text='Data fim',
                 
+            ), 
+            html.Label("Resumo"),
+            dash_table.DataTable(
+                id = 'Tabela',
+                columns=[{"name": i, "id": i} for i in ['Medição','Média', 'Desvio Padrão','Mediana']],
+                style_cell = dict(backgroundColor='#1a1a1a', color='whitesmoke')
             )
+
         ])
     ])
 ])
 
 @app.callback(
-    Output(component_id="Graficos", component_property="figure"),
+    [Output(component_id="Graficos", component_property="figure"),
+    Output(component_id="Tabela", component_property="data")],
     [Input(component_id="Cidades-Dropdown", component_property="value"),
     Input(component_id="Datas", component_property="start_date"),
     Input(component_id="Datas", component_property="end_date")]
@@ -96,8 +106,13 @@ def update_dados(value, start_date, end_date):
         fim = '2008-12'
 
     figura = graficos(cidade,inicio=inicio,fim=fim)
-
-    return figura
+    
+    df = carrega_tabela(cidade, bd = '../dados/clima.db', clima=True)
+    tabela = df.describe().T.loc[:,['mean','std', '50%']]
+    tabela.reset_index(inplace=True)
+    tabela.columns = ['Medição','Média', 'Desvio Padrão','Mediana']
+    tabela = tabela.round(2)
+    return figura, tabela.to_dict('records')
 
 if __name__ == "__main__":
     app.run_server(debug=True)

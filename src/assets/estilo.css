@@ -26,7 +26,7 @@ header{
     display:flex;
     justify-content: space-between;
     height:100vh;
-    background-color: rgb(190, 190, 190);
+    background-color: #111111;
     padding-top: 1.5%;
 
 }
@@ -38,7 +38,7 @@ header{
 
 .resumo{
     width:30%;
-    background-color: crimson;
+    background-color: #1a1a1a;
 }
 
 #Cidades-DropDown .Select{

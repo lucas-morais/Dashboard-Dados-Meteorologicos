@@ -111,6 +111,8 @@ def graficos(nome, inicio, fim):
         showlegend=False,
         template = "plotly_dark",
         margin = dict(l=20,r=20, t=40, b = 20), 
+        plot_bgcolor = '#1a1a1a',
+        paper_bgcolor=  '#1a1a1a',
         
     )
     return fig
