@@ -128,7 +128,7 @@ def update_dados(value, start_date, end_date):
     tabela.columns = ['Medição','Média', 'Desvio Padrão','Mediana']
     tabela = tabela.round(2)
 
-    tabelaVento = tabela_vento(nome, inicio, fim)
+    tabelaVento = tabela_vento(cidade, inicio, fim)
     
     return figura, tabela.to_dict('records'), tabelaVento.to_dict('records')
 

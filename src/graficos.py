@@ -122,7 +122,7 @@ def graficos(nome, inicio, fim):
 def tabela_vento(nome, inicio, fim):
 
     vento = carrega_tabela('DirecaoVento', bd='../dados/clima.db', clima=False)
-    df = carrega_tabela('JoaoPessoa', bd='../dados/clima.db', clima=True)
+    df = carrega_tabela(nome, bd='../dados/clima.db', clima=True)
     df = df[inicio:fim]
     t = df['DirecaoVento'].value_counts().sort_values(ascending = False)[:3]
     count = t.values
