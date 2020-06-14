@@ -5,21 +5,22 @@ import sqlite3
 
 def carrega_csv(arquivo):
     
-    # Função para carga de dados
-    # 
-    # arquivo:caminho do arquivo 
-
-
+    #arquivo: Arquivo do tipo csv
+    #retorno: Dataframe pandas
+    
     if "_clima" in arquivo:
-        df = pd.read_csv(arquivo,
-                    delimiter = ";",
-                    usecols=list(range(1,10)),
-                    dtype={'Hora':'str', 'DirecaoVento':'str'},
-                    parse_dates=[['Data', 'Hora']],
-                    dayfirst=True
-                   )
-        df.rename(columns={'Data_Hora':'Horario'}, inplace=True)
-        df.set_index('Horario', inplace=True)
+        df = pd.read_csv("../dados/JoaoPessoa_clima.csv",
+            delimiter = ";",
+            usecols=list(range(1,10)),               
+            dtype={'Hora':'str','DirecaoVento':'str'},
+            parse_dates=[['Data', 'Hora']],      
+            dayfirst = True,
+            index_col = 0
+        )   
+        vento = pd.read_csv('../dados/DirecaoVento.csv', delimiter=';', dtype={'Codigo':'str' })
+        mapper = dict(zip(vento['Codigo'], vento['Descricao']))
+        df['DirecaoVento']=df['DirecaoVento'].map(mapper)
+
     else :
         try:
             df = pd.read_csv(arquivo,
@@ -35,7 +36,6 @@ def cria_bd(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
     except sqlite3.Error as e:
         print(e)
     finally:
