@@ -20,6 +20,7 @@ def carrega_csv(arquivo):
         vento = pd.read_csv('../dados/DirecaoVento.csv', delimiter=';', dtype={'Codigo':'str' })
         mapper = dict(zip(vento['Codigo'], vento['Descricao']))
         df['DirecaoVento']=df['DirecaoVento'].map(mapper)
+        df.index.rename('Horario', inplace=True)
 
     else :
         try:
@@ -31,62 +32,87 @@ def carrega_csv(arquivo):
                 
     return df
 
-def cria_bd(db_file):
-        
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except sqlite3.Error as e:
-        print(e)
-    finally:
-        if conn:
-            conn.close()
+def cria_bd(bd_file):
 
+    #Função para criar naco de dados com sqlite3
 
-def cria_conexao(db_file):
-    
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except Error as e:
-        print(e)
+    #bd_file: nome do arquivo
 
-    return conn
-
+    #testa se o arquvio existe    
+    if not path.exists(bd_file):
+        con = None
+        try:
+            con = sqlite3.connect(bd_file)
+        except sqlite3.Error as e:
+            print(e)
+        finally:
+            if con:
+                con.close()
+    else:
+        print("Arquivo existe")
 
 def bd_clima():
+    
+    #Função para criar banco de dados com dados metereológicos
     path = "../dados/"
 
     if "clima.db" in os.listdir(path):
         print("Banco de dados já criado")
     else:
+        con = None
+        try:
+            
+            con = sqlite3.connect(path+"clima.db")
+            
+            #Loop dos arquivos csv
+            arquivos = [arq for arq in os.listdir(path) if '.csv' in arq]
+
+            for tabela in arquivos:
+
+                if '_clima.csv' in tabela:
+                    nome= tabela.rsplit("_clima.csv")
+                    df = carrega_csv(path+tabela)
+                    df.to_sql(nome[0], con)
+                
+                else:
+                    nome = tabela.rsplit(".csv")
+                    df = carrega_csv(path+tabela)
+                    df.to_sql(nome[0], con)
+
+            print("Banco de dados criado")
+       
+        except sqlite3.Error as e:
+            print(e)
         
-        cria_bd(path+"clima.db")
-        con = cria_conexao(path+"clima.db")
+        finally:
+            if con:
+                con.close()
 
-        arquivos = [arq for arq in os.listdir(path) if '.csv' in arq]
-
-        for tabela in arquivos:
-
-            if '_clima.csv' in tabela:
-                nome= tabela.rsplit("_clima.csv")
-                df = carrega_csv(path+tabela)
-                df.to_sql(nome[0], con)
-            else:
-                nome = tabela.rsplit(".csv")
-                df = carrega_csv(path+tabela)
-                df.to_sql(nome[0], con)
-        con.close()
 
 def carrega_tabela(nome, bd, clima=False):
 
-    con = cria_conexao(bd)
-    query = "SELECT * FROM {}".format(nome)
-    if clima:
-        df = pd.read_sql_query(query, con=con, parse_dates='Horario', index_col='Horario')
-    else:
-        df = pd.read_sql_query(query, con=con)
-        df.drop(columns='index', inplace=True)
+    #Função para carregar tabela
+
+    #nome: Nome da tabela
+    #bd: Arquivo do banco de dados 
+    #Clima: Define se a tabela é de informações ou medições metereológicas 
     
-    con.close()
+    con = None
+    try:
+
+        con = sqlite3.connect(bd)
+        query = "SELECT * FROM {}".format(nome)
+        if clima:
+            df = pd.read_sql_query(query, con=con, parse_dates='Horario', index_col='Horario')
+        else:
+            df = pd.read_sql_query(query, con=con)
+            df.drop(columns='index', inplace=True)
+    
+    except sqlite3.Error as e:
+            print(e)
+        
+    finally:
+        if con:
+            con.close()
+    
     return df
