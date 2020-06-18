@@ -29,7 +29,7 @@ def carrega_csv(arquivo):
                             )
         except:
             raise Exception("Arquivo não existe")
-                
+            
     return df
 
 def cria_bd(bd_file):
@@ -39,7 +39,7 @@ def cria_bd(bd_file):
     #bd_file: nome do arquivo
 
     #testa se o arquvio existe    
-    if not path.exists(bd_file):
+    if not os.path.exists(bd_file):
         con = None
         try:
             con = sqlite3.connect(bd_file)

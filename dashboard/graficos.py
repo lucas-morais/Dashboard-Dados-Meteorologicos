@@ -5,15 +5,15 @@ import pandas as pd
 
 class GraficoDash:
 
-    bd = '../dados/clima.db'
+    
 
     def __init__(self, nome, inicio, fim):
         self.nome = nome
         self.inicio = inicio
         self.fim = fim
-        self.df = carrega_tabela(self.nome, bd,clima=True)
+        self.df = carrega_tabela(self.nome, bd = '../dados/clima.db',clima=True)
         self.df = self.df[inicio:fim]
-        self.info = carrega_tabela('Info', bd, clima=False)
+        
     
     
     def graficos(self):
@@ -87,13 +87,32 @@ class GraficoDash:
         )
         return fig
 
+    def tabela_resumo(self):
 
-    def mapa(self):
+        tabela = self.df.describe().T.loc[:,['mean','std', '50%']]
+        tabela.reset_index(inplace=True)
+        tabela.columns = ['Medição','Média', 'Desvio Padrão','Mediana']
+        tabela = tabela.round(2)
+        tabela_resumo = tabela.to_dict('records')
+
+        return tabela_resumo
+
     
+    def tabela_vento(self):
+    
+        vento = self.df['DirecaoVento']
+        vento_principal = vento.value_counts()[:3]
+        tabela = pd.DataFrame([vento_principal.index, vento_principal.values]).T
+        tabela.columns = ['Direção', 'Contagem']
+        tabela_vento = tabela.to_dict('records')
+        return tabela_vento
 
-        latitude = self.info['Latitude']
-        longitude = self.info['Longitude']
-        texto = self.info['Cidade'].values
+def mapa():
+    
+        info =carrega_tabela("Info", bd = '../dados/clima.db', clima = False)
+        latitude = info['Latitude']
+        longitude = info['Longitude']
+        texto = info['Cidade'].values
         lat = list(latitude.astype(str).values)
         lon = list(longitude.astype(str).values)
         centro = [latitude.mean(), longitude.mean()]
@@ -124,23 +143,3 @@ class GraficoDash:
             )
         )
         return fig
-
-    def tabela_resumo(self):
-
-        tabela = self.df.describe().T.loc[:,['mean','std', '50%']]
-        tabela.reset_index(inplace=True)
-        tabela.columns = ['Medição','Média', 'Desvio Padrão','Mediana']
-        tabela = tabela.round(2)
-        tabela_resumo = tabela.to_dict('records')
-
-        return tabela_resumo
-
-    
-    def tabela_vento(self):
-    
-        vento = self.df['DirecaoVento']
-        vento_principal = vento.value_counts()[:3]
-        tabela = pd.DataFrame([vento_principal.index, vento_principal.values]).T
-        tabela.columns = ['Direção', 'Contagem']
-        tabela_vento = tabela.to_dict('records')
-        return tabela_vento

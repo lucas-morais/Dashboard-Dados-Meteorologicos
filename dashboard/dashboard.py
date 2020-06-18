@@ -3,11 +3,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import dash_table
-from bdconfig import carrega_tabela
-from graficos import mapa, graficos, tabela_vento
 from datetime import datetime as dt
+from bdconfig import carrega_tabela
+from graficos import GraficoDash, mapa
 
-
+#Criando listas para Dropdown
 bd = "../dados/clima.db"
 info = carrega_tabela(nome = "Info", bd = bd, clima=False)
 nome = info['Cidade']
@@ -17,32 +17,37 @@ listaCidades = []
 for it1,it2 in zip(label, value):
     listaCidades.append(dict(label=it1, value=it2))
 
+#Colunas Para tabela de resumo
 colunas = ['Média', 'Mediana', 'Desvio Padrão']
 
+#Stylsheet
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
+#Criando app
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-
-
+#Layout do app
 app.layout = html.Div(children=[
 
+    #Cabeçalho
     html.Header(children=[
         html.H1("Dashboard de Dados Metereólogicos - Paraíba")
     ]),
     
-    #html.Hr(),
 
     html.Div(className= "principal", children = [
         
-
+        #Tela principal
         html.Div(className="grafico", children=[    
+            #Tabs
             dcc.Tabs([
+                #Mapa
                 dcc.Tab(label = 'Mapa',children = [
                     html.Div(children=[
                         dcc.Graph(id='Mapa', figure=mapa())
                     ])
                 ]),
+                #Gráficos
                 dcc.Tab(label = 'Gráficos',children = [
                     html.Div(children=[
                         dcc.Graph(id='Graficos')
@@ -51,7 +56,10 @@ app.layout = html.Div(children=[
             ],
             colors = dict(border="blue",primary="yellow",background="#1a1a1a")),
         ]),
+        #Coluna de opções e tabelas
         html.Div(className="resumo", children = [
+            
+            #Dropdown: escolhe a cidade
             html.Label(children =[ 
                 "Cidade:",
                 dcc.Dropdown(
@@ -60,6 +68,7 @@ app.layout = html.Div(children=[
                     value = 'JoaoPessoa',
                 )
             ]),
+            #Date-Picker: escolhe a data
             html.Label(children=[
                 "Data:",
                 html.Br(),
@@ -72,6 +81,7 @@ app.layout = html.Div(children=[
                     end_date_placeholder_text='Data fim',
                 )        
             ]), 
+            #Tabela de resumo
             html.Label(children = [
                 "Resumo",
                 dash_table.DataTable(
@@ -81,11 +91,12 @@ app.layout = html.Div(children=[
                 ),
                 
             ]), 
+            #Tabela de contagem de direção do vento
             html.Label(children = [
                 "Direção do Vento",
                 dash_table.DataTable(
                     id = 'TabelaVento',
-                    columns=[{"name": i, "id": i} for i in ['Direção','Cont' ]],
+                    columns=[{"name": i, "id": i} for i in ['Direção','Contagem' ]],
                     style_cell = dict(backgroundColor='#1a1a1a', color='whitesmoke')
                 ),
                 
@@ -94,6 +105,7 @@ app.layout = html.Div(children=[
     ])
 ])
 
+#Callback para atualização de informações
 @app.callback(
     [Output(component_id="Graficos", component_property="figure"),
     Output(component_id="Tabela", component_property="data"),
@@ -102,7 +114,7 @@ app.layout = html.Div(children=[
     Input(component_id="Datas", component_property="start_date"),
     Input(component_id="Datas", component_property="end_date")]
 )
-
+#Função de callback
 def update_dados(value, start_date, end_date):
 
     if value is not None:
@@ -120,17 +132,13 @@ def update_dados(value, start_date, end_date):
     else:
         fim = '2008-12'
 
-    figura = graficos(cidade,inicio=inicio,fim=fim)
+    graf = GraficoDash(cidade, inicio, fim)
     
-    df = carrega_tabela(cidade, bd = '../dados/clima.db', clima=True)
-    tabela = df.describe().T.loc[:,['mean','std', '50%']]
-    tabela.reset_index(inplace=True)
-    tabela.columns = ['Medição','Média', 'Desvio Padrão','Mediana']
-    tabela = tabela.round(2)
-
-    tabelaVento = tabela_vento(cidade, inicio, fim)
+    figura = graf.graficos()
+    tabela = graf.tabela_resumo()
+    tabelaVento = graf.tabela_vento()
     
-    return figura, tabela.to_dict('records'), tabelaVento.to_dict('records')
+    return figura, tabela, tabelaVento
 
 if __name__ == "__main__":
     app.run_server(debug=True)
