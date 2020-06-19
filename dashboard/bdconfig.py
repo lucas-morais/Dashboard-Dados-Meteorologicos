@@ -98,6 +98,7 @@ def carrega_tabela(nome, bd, clima=False):
     #Clima: Define se a tabela é de informações ou medições metereológicas 
     
     con = None
+    df = None
     try:
 
         con = sqlite3.connect(bd)

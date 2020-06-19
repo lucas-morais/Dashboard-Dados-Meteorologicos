@@ -21,21 +21,20 @@
 	- dashboard
 		|--Arquivos principal do dashboard
 		|--Arquivos de apoio
-	- setup.py
-		|--Arquivo para configurações
 	- requirements.txt 
 		|--Arquivo com dependêcias
 
 ### __Executando localmente__
 
  #### Verificando dependências  
-	pip install requirements.txt
+	pip install -r requirements.txt
 
 #### Criando banco de dados e testando funções  
 	python setup.py
 
 #### Executando dashboard
-	python dashboard/dashborad.py
+	Mudar para diretório dashboard
+	python dashborad.py
 
 #### Acessando dashboard  
 	Endereço:localhost:8050
