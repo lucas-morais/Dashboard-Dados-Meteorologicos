@@ -11,7 +11,7 @@ class GraficoDash:
         self.nome = nome
         self.inicio = inicio
         self.fim = fim
-        self.df = carrega_tabela(self.nome, bd = '../dados/clima.db',clima=True)
+        self.df = carrega_tabela(nome, bd = '../dados/clima.db',clima=True)
         self.df = self.df[inicio:fim]
         
     

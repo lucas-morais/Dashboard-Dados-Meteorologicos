@@ -120,7 +120,7 @@ def update_dados(value, start_date, end_date):
     if value is not None:
         cidade = value
     else: 
-        cidade = JoaoPessoa
+        cidade = 'JoaoPessoa'
     
     if start_date is not None:
         inicio = start_date

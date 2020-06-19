@@ -9,7 +9,7 @@ def carrega_csv(arquivo):
     #retorno: Dataframe pandas
     
     if "_clima" in arquivo:
-        df = pd.read_csv("../dados/JoaoPessoa_clima.csv",
+        df = pd.read_csv(arquivo,
             delimiter = ";",
             usecols=list(range(1,10)),               
             dtype={'Hora':'str','DirecaoVento':'str'},
